@@ -151,7 +151,7 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
         return 2
 
     def _get_col_pos_initial_balance_label(self):
-        return 5
+        return 6
 
     def _get_col_count_final_balance_name(self):
         return 7
