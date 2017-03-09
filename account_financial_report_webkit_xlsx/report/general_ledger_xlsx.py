@@ -35,9 +35,11 @@ class LineFunData(object):
         #             'debit', 0.0) != 0.0 or
         #             _p['init_balance'][account.id].get('credit', 0.0) != 0.0)
         initb = _p['init_balance'][account.id]
-        self.init_balance = initb.get('init_balance') or 0.0
-        self.cumul_debit = initb.get('debit') or 0.0
-        self.cumul_credit = initb.get('credit') or 0.0
+        self.initial_balance = initb.get('init_balance') or 0.0
+        self.initial_debit = initb.get('debit', 0.0)
+        self.initial_credit = initb.get('credit', 0.0)
+        self.cumul_debit = self.initial_debit
+        self.cumul_credit = self.initial_credit
         self.cumul_balance = initb.get('init_balance') or 0.0
         self.cumul_balance_curr = initb.get('init_balance_currency') or 0.0
 
@@ -89,20 +91,20 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
             7: {'header': _('Counterpart'), 'field': 'counterparts', 'width': 25},
             8: {'header': _('Debit'),
                 'field': 'debit',
-                #'field_initial_balance': 'initial_debit',
-                #'field_final_balance': 'final_debit',
+                'field_initial_balance': attrgetter( 'initial_debit' ),
+                #'field_final_balance': attrgetter( 'final_debit' ),
                 'type': 'amount',
                 'width': 14},
             9: {'header': _('Credit'),
                 'field': 'credit',
-                #'field_initial_balance': 'initial_credit',
-                #'field_final_balance': 'final_credit',
+                'field_initial_balance': attrgetter( 'initial_credit' ),
+                #'field_final_balance': attrgetter( 'final_credit' ),
                 'type': 'amount',
                 'width': 14},
             10: {'header': _('Cumul. Bal.'),
                  'field': attrgetter('cumul_balance'),
-                 # 'field_initial_balance': 'initial_balance',
-                 # 'field_final_balance': 'final_balance',
+                 'field_initial_balance': attrgetter( 'initial_balance' ),
+                 # 'field_final_balance': attrgetter( 'final_balance' ),
                  'type': 'amount',
                  'width': 14},
             # 12: {'header': _('Cur.'), 'field': 'currency_name', 'width': 7},
@@ -164,7 +166,7 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
             self.write_array_header()
 
             # Display initial balance line for account
-            #self.write_initial_balance(account, _('Initial balance'))
+            self.write_initial_balance(account, _('Initial balance'), fundata)
 
             # Display account move lines
             #for line in account.move_line_ids:

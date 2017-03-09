@@ -173,7 +173,7 @@ class AbstractReportXslx(ReportXlsx):
                  It is passed to any callable that is used as 'field' in the _get_report_columns() dictionary
         """
         for col_pos, column in self.columns.iteritems():
-            value = self.compute_field_value(column, line_object, fundata)
+            value = self.compute_field_value(column['field'], line_object, fundata)
             cell_type = column.get('type', 'string')
             if cell_type == 'string':
                 self.sheet.write_string(self.row_pos, col_pos, value or '')
@@ -183,14 +183,13 @@ class AbstractReportXslx(ReportXlsx):
                 )
         self.row_pos += 1
 
-    def compute_field_value(self, column, obj, fundata):
-        field = column[ 'field' ]
+    def compute_field_value(self, field, obj, fundata):
         if isinstance(field, collections.Callable):
             return field(fundata)
         return obj[ field ]
 
 
-    def write_initial_balance(self, my_object, label):
+    def write_initial_balance(self, my_object, label, fundata):
         """Write a specific initial balance line on current line
         using defined columns field_initial_balance name.
 
@@ -200,7 +199,7 @@ class AbstractReportXslx(ReportXlsx):
         self.sheet.write(self.row_pos, col_pos_label, label, self.format_right)
         for col_pos, column in self.columns.iteritems():
             if column.get('field_initial_balance'):
-                value = getattr(my_object, column['field_initial_balance'])
+                value = self.compute_field_value(column['field_initial_balance'], my_object, fundata)
                 cell_type = column.get('type', 'string')
                 if cell_type == 'string':
                     self.sheet.write_string(self.row_pos, col_pos, value or '')
