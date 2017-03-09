@@ -154,10 +154,10 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
         return 5
 
     def _get_col_count_final_balance_name(self):
-        return 5
+        return 7
 
     def _get_col_pos_final_balance_label(self):
-        return 5
+        return 7
 
     def _generate_report_content(self, workbook, report):
         # import pprint
