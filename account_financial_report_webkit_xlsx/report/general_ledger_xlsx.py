@@ -25,6 +25,8 @@ class LineFunData(object):
 
     Instance variables:
       cumul_balance: The current cumulative balance
+      cumul_debit: Running total of debit lines
+      cumul_credit: Running total of credit lines
     """
     def __init__(self, account, localcontext):
         self.account = account
@@ -51,6 +53,11 @@ class LineFunData(object):
         self.cumul_credit += line.get('credit') or 0.0
         self.cumul_balance_curr += line.get('amount_currency') or 0.0
         self.cumul_balance += line.get('balance') or 0.0
+
+    def finish(self):
+        self.final_debit = self.cumul_debit
+        self.final_credit = self.cumul_credit
+        self.final_balance = self.cumul_balance
 
 
 def account_code(fundata):
@@ -92,26 +99,26 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
             8: {'header': _('Debit'),
                 'field': 'debit',
                 'field_initial_balance': attrgetter( 'initial_debit' ),
-                #'field_final_balance': attrgetter( 'final_debit' ),
+                'field_final_balance': attrgetter( 'final_debit' ),
                 'type': 'amount',
                 'width': 14},
             9: {'header': _('Credit'),
                 'field': 'credit',
                 'field_initial_balance': attrgetter( 'initial_credit' ),
-                #'field_final_balance': attrgetter( 'final_credit' ),
+                'field_final_balance': attrgetter( 'final_credit' ),
                 'type': 'amount',
                 'width': 14},
             10: {'header': _('Cumul. Bal.'),
                  'field': attrgetter('cumul_balance'),
                  'field_initial_balance': attrgetter( 'initial_balance' ),
-                 # 'field_final_balance': attrgetter( 'final_balance' ),
+                 'field_final_balance': attrgetter( 'final_balance' ),
                  'type': 'amount',
                  'width': 14},
-            # 12: {'header': _('Cur.'), 'field': 'currency_name', 'width': 7},
-            # 13: {'header': _('Amount cur.'),
-            #      'field': 'amount_currency',
-            #      'type': 'amount',
-            #      'width': 14},
+            12: {'header': _('Cur.'), 'field': 'currency_name', 'width': 7},
+            13: {'header': _('Amount cur.'),
+                 'field': 'amount_currency',
+                 'type': 'amount',
+                 'width': 14},
         }
 
     def _get_report_filters(self, report):
@@ -173,6 +180,7 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
             for line in data['ledger_lines'][account.id]:
                 fundata.new_line(line)
                 self.write_line(line, fundata)
+            fundata.finish()
 
             # else:
             #     # For each partner
@@ -197,12 +205,12 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
             #         self.row_pos += 1
 
             # Display ending balance line for account
-            self.write_ending_balance(account, 'account')
+            self.write_ending_balance(account, 'account', fundata)
 
             # 2 lines break
             self.row_pos += 2
 
-    def write_ending_balance(self, my_object, type_object):
+    def write_ending_balance(self, my_object, type_object, fundata):
         """Specific function to write ending balance for General Ledger"""
         if type_object == 'partner':
             name = my_object.name
@@ -211,7 +219,7 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
             name = my_object.code + ' - ' + my_object.name
             label = _('Ending balance')
         super(GeneralLedgerXslx, self).write_ending_balance(
-            my_object, name, label
+            my_object, name, label, fundata
         )
 
 

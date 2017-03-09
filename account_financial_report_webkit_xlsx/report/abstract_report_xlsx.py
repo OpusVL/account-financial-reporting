@@ -209,7 +209,7 @@ class AbstractReportXslx(ReportXlsx):
                     )
         self.row_pos += 1
 
-    def write_ending_balance(self, my_object, name, label):
+    def write_ending_balance(self, my_object, name, label, fundata):
         """Write a specific ending balance line on current line
         using defined columns field_final_balance name.
 
@@ -227,7 +227,7 @@ class AbstractReportXslx(ReportXlsx):
                          self.format_header_right)
         for col_pos, column in self.columns.iteritems():
             if column.get('field_final_balance'):
-                value = getattr(my_object, column['field_final_balance'])
+                value = self.compute_field_value(column['field_final_balance'], my_object, fundata)
                 cell_type = column.get('type', 'string')
                 if cell_type == 'string':
                     self.sheet.write_string(self.row_pos, col_pos, value or '',
