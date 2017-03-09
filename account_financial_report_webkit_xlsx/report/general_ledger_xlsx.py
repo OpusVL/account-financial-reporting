@@ -4,7 +4,7 @@
 # Copyright 2016 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from operator import attrgetter
+from operator import attrgetter, methodcaller
 
 from . import abstract_report_xlsx
 from openerp.report import report_sxw
@@ -47,7 +47,7 @@ class LineFunData(object):
         self.cumul_balance_curr = initb.get('init_balance_currency') or 0.0
 
     def new_line(self, line):
-        """Let us know we have a new line, and 
+        """Set new line and update running totals
         """
         self.line = line
         self.cumul_debit += line.get('debit') or 0.0
@@ -59,6 +59,10 @@ class LineFunData(object):
         self.final_debit = self.cumul_debit
         self.final_credit = self.cumul_credit
         self.final_balance = self.cumul_balance
+
+    def display_currency_column(self, report_data):
+        _p = self.localcontext
+        return bool(_p['amount_currency'](report_data))
 
 
 def account_code(fundata):
@@ -115,11 +119,15 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
                  'field_final_balance': attrgetter( 'final_balance' ),
                  'type': 'amount',
                  'width': 14},
-            # 12: {'header': _('Cur.'), 'field': 'currency_name', 'width': 7},
-            # 13: {'header': _('Amount cur.'),
-            #      'field': 'amount_currency',
-            #      'type': 'amount',
-            #      'width': 14},
+            11: {'header': _('Curr. Bal.'),
+                 'field': 'amount_currency',
+                 'type': 'amount',
+                 'width': 14,
+                 'display_iff': methodcaller('display_currency_column', self.report_data)},
+            12: {'header': _('Curr.'),
+                 'field': 'currency_code',
+                 'width': 7,
+                 'display_iff': methodcaller('display_currency_column', self.report_data)},
         }
 
     def _get_report_filters(self, report):
@@ -171,7 +179,7 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
             # TODO What's this for???
             #if not account.partner_ids:
             # Display array header for move lines
-            self.write_array_header()
+            self.write_array_header(fundata)
 
             # Display initial balance line for account
             if fundata.display_initial_balance:

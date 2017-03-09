@@ -156,11 +156,13 @@ class AbstractReportXslx(ReportXlsx):
         )
         self.row_pos += 1
 
-    def write_array_header(self):
+    def write_array_header(self, fundata):
         """Write array header on current line using all defined columns name.
         Columns are defined with `_get_report_columns` method.
         """
         for col_pos, column in self.columns.iteritems():
+            if not self._display_column(column, fundata):
+                continue
             self.sheet.write(self.row_pos, col_pos, column['header'],
                              self.format_header_center)
         self.row_pos += 1
@@ -173,6 +175,8 @@ class AbstractReportXslx(ReportXlsx):
                  It is passed to any callable that is used as 'field' in the _get_report_columns() dictionary
         """
         for col_pos, column in self.columns.iteritems():
+            if not self._display_column(column, fundata):
+                continue
             value = self.compute_field_value(column['field'], line_object, fundata)
             cell_type = column.get('type', 'string')
             if cell_type == 'string':
@@ -189,6 +193,19 @@ class AbstractReportXslx(ReportXlsx):
         return obj[ field ]
 
 
+    def _display_column(self, column, fundata):
+        """Whether we are displaying the particular column.
+
+        column: A value from the dictionary returned by _get_report_columns()
+        fundata: The fundata object - this is passed into the display_iff function as the only parameter
+        """
+        try:
+            display_iff_fun = column['display_iff']
+        except KeyError:
+            return True
+        return display_iff_fun(fundata)
+
+
     def write_initial_balance(self, my_object, label, fundata):
         """Write a specific initial balance line on current line
         using defined columns field_initial_balance name.
@@ -198,6 +215,8 @@ class AbstractReportXslx(ReportXlsx):
         col_pos_label = self._get_col_pos_initial_balance_label()
         self.sheet.write(self.row_pos, col_pos_label, label, self.format_right)
         for col_pos, column in self.columns.iteritems():
+            if not self._display_column(column, fundata):
+                continue
             if column.get('field_initial_balance'):
                 value = self.compute_field_value(column['field_initial_balance'], my_object, fundata)
                 cell_type = column.get('type', 'string')
@@ -215,8 +234,11 @@ class AbstractReportXslx(ReportXlsx):
 
         Columns are defined with `_get_report_columns` method.
         """
-        for i in range(0, len(self.columns)):
+        # This pre-formats the cells in all the columns the same colour
+        num_visible_columns = len([ c for c in self.columns.values() if self._display_column(c, fundata) ])
+        for i in range(0, num_visible_columns):
             self.sheet.write(self.row_pos, i, '', self.format_header_right)
+
         row_count_name = self._get_col_count_final_balance_name()
         col_pos_label = self._get_col_pos_final_balance_label()
         self.sheet.merge_range(
@@ -226,6 +248,8 @@ class AbstractReportXslx(ReportXlsx):
         self.sheet.write(self.row_pos, col_pos_label, label,
                          self.format_header_right)
         for col_pos, column in self.columns.iteritems():
+            if not self._display_column(column, fundata):
+                continue
             if column.get('field_final_balance'):
                 value = self.compute_field_value(column['field_final_balance'], my_object, fundata)
                 cell_type = column.get('type', 'string')
@@ -238,6 +262,7 @@ class AbstractReportXslx(ReportXlsx):
                         self.format_header_amount
                     )
         self.row_pos += 1
+
 
     def _generate_report_content(self, workbook, report):
         pass
