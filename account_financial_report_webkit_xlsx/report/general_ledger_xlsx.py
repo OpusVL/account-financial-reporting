@@ -32,10 +32,11 @@ class LineFunData(object):
         self.account = account
         self.localcontext = localcontext
         _p = self.localcontext
-        # self.display_initial_balance = _p['init_balance'][account.id] and \
-        #         (_p['init_balance'][account.id].get(
-        #             'debit', 0.0) != 0.0 or
-        #             _p['init_balance'][account.id].get('credit', 0.0) != 0.0)
+        # display_initial_balance - direct lift from general_ledger_xls.py from OCA/account-financial-reporting
+        self.display_initial_balance = _p['init_balance'][account.id] and \
+                (_p['init_balance'][account.id].get(
+                    'debit', 0.0) != 0.0 or
+                    _p['init_balance'][account.id].get('credit', 0.0) != 0.0)
         initb = _p['init_balance'][account.id]
         self.initial_balance = initb.get('init_balance') or 0.0
         self.initial_debit = initb.get('debit', 0.0)
@@ -173,7 +174,8 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
             self.write_array_header()
 
             # Display initial balance line for account
-            self.write_initial_balance(account, _('Initial balance'), fundata)
+            if fundata.display_initial_balance:
+                self.write_initial_balance(account, _('Initial balance'), fundata)
 
             # Display account move lines
             #for line in account.move_line_ids:
