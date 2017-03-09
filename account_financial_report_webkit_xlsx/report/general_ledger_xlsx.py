@@ -114,11 +114,11 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
                  'field_final_balance': attrgetter( 'final_balance' ),
                  'type': 'amount',
                  'width': 14},
-            12: {'header': _('Cur.'), 'field': 'currency_name', 'width': 7},
-            13: {'header': _('Amount cur.'),
-                 'field': 'amount_currency',
-                 'type': 'amount',
-                 'width': 14},
+            # 12: {'header': _('Cur.'), 'field': 'currency_name', 'width': 7},
+            # 13: {'header': _('Amount cur.'),
+            #      'field': 'amount_currency',
+            #      'type': 'amount',
+            #      'width': 14},
         }
 
     def _get_report_filters(self, report):
