@@ -195,6 +195,12 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
         #import pdb ; pdb.set_trace()
         data = self.parser_instance.localcontext
         for account in data['objects']:
+            ledger_lines = data['ledger_lines'][account.id]
+
+            if not ledger_lines:
+                # To match with XLS version, skip accounts with no lines to report
+                continue
+
             fundata = LineFunData(account, data)
 
             # Write account title
