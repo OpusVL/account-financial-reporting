@@ -142,7 +142,6 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
         data.append([
             _('Fiscal Year'), ctx['fiscalyear'].name
         ])
-        # fiscalyear_id
         if form['filter'] == 'filter_date':
             data.append([ _('Date range filter'),
                 _('From: %s To: %s') % (form['date_from'], form['date_to'])])
