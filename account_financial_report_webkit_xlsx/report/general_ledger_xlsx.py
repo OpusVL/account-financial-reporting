@@ -130,11 +130,32 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
                  'display_iff': methodcaller('display_currency_column', self.report_data)},
         }
 
+
     def _get_report_filters(self, report):
         form = self.report_data['form']
-        return [
-            [_('Date range filter'),
-                _('From: %s To: %s') % (form['date_from'], form['date_to'])],
+        ctx = _p = self.parser_instance.localcontext
+        data = []
+        data.append([
+            _('Chart of Account'), ctx['chart_account'].name
+        ])
+        data.append([
+            _('Fiscal Year'), ctx['fiscalyear'].name
+        ])
+        # fiscalyear_id
+        if form['filter'] == 'filter_date':
+            data.append([ _('Date range filter'),
+                _('From: %s To: %s') % (form['date_from'], form['date_to'])])
+        elif form['filter'] == 'filter_period':
+            data.append([
+                _('Periods Filter'),
+                _('From: %s To: %s') % tuple(ctx[f].code for f in ['start_period', 'stop_period'])
+            ])
+        accounts_filter = ctx['accounts'](self.report_data)
+        initial_balance_text = {'initial_balance': _('Computed'),
+                                'opening_balance': _('Opening Entries'),
+                                False: _('No')}
+        data.extend([
+            [_('Accounts Filter'), accounts_filter and ', '.join(a.code for a in accounts_filter) or _('All')],
             [_('Target Moves'),
                 _('All posted entries') if form['target_move'] == 'posted'
                 else _('All entries')],
@@ -142,7 +163,10 @@ class GeneralLedgerXslx(abstract_report_xlsx.AbstractReportXslx):
             #     _('Hide') if form['hide_account_balance_at_0'] else _('Show')],
             [_('Centralize filter'),
                 _('Yes') if form['centralize'] else _('No')],
-        ]
+            [ _('Initial Balance'), initial_balance_text[ ctx['initial_balance_mode'] ] ]
+        ])
+        return data
+
 
     def _get_col_count_filter_name(self):
         return 2
