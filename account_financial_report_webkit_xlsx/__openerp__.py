@@ -29,27 +29,23 @@
 
     This module adds XLS export to the following accounting reports:
         - general ledger
-        - trial balance
-        - partner ledger
-        - partner balance
-        - open invoices
-
     """,
     'depends': ['report_xlsx', 'account_financial_report_webkit'],
     'demo': [],
     'data': [
         'reports.xml',
         'wizard/general_ledger_wizard_view.xml',
-        'wizard/trial_balance_wizard_view.xml',
-        'wizard/partners_ledger_wizard_view.xml',
-        'wizard/partners_balance_wizard_view.xml',
-        'wizard/open_invoices_wizard_view.xml',
+        #'wizard/trial_balance_wizard_view.xml',
+        #'wizard/partners_ledger_wizard_view.xml',
+        #'wizard/partners_balance_wizard_view.xml',
+        #'wizard/open_invoices_wizard_view.xml',
     ],
     'test': ['tests/general_ledger.yml',
-             'tests/partner_ledger.yml',
-             'tests/trial_balance.yml',
-             'tests/partner_balance.yml',
-             'tests/open_invoices.yml'],
+             #'tests/partner_ledger.yml',
+             #'tests/trial_balance.yml',
+             #'tests/partner_balance.yml',
+             #'tests/open_invoices.yml',
+    ],
     'active': False,
     'installable': True,
 }
