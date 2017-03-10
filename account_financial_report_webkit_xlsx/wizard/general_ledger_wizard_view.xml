@@ -10,7 +10,7 @@
       <field name="arch" type="xml">
         <data>
           <xpath expr="/form/label[contains(@string,'generate a pdf')]" position="replace">
-            <label nolabel="1" colspan="4" string="This report allows you to generate a pdf or xls of your general ledger with details of all your account journals"/>
+            <label nolabel="1" colspan="4" string="This report allows you to generate a pdf or xlsx of your general ledger with details of all your account journals"/>
           </xpath>
           <!-- TODO The below column number change conflicts with the xls version of this module, so I've commented it out.
                Screen might look ugly if you don't have the xls version installed alongside it.
