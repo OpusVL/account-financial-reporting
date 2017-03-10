@@ -22,7 +22,7 @@
 ##############################################################################
 {
     'name': 'Add XLS export to accounting reports',
-    'version': '8.0.0.4.0',
+    'version': '8.0.0.0.1',
     'license': 'AGPL-3',
     'author': "OpusVL,Noviat,Odoo Community Association (OCA)",
     'category': 'Generic Modules/Accounting',
